@@ -2,6 +2,9 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { EvaluationModule } from './modules/evaluation/evaluation.module';
+import { FeatureFlag } from './modules/evaluation/entity/feature-flag.entity';
+import { Rule } from './modules/evaluation/entity/rule.entity';
+import { Variant } from './modules/evaluation/entity/variant.entity';
 
 
 @Module({
@@ -22,7 +25,8 @@ import { EvaluationModule } from './modules/evaluation/evaluation.module';
           type: 'postgres',
           url: dbUrl,
           autoLoadEntities: true,
-          synchronize: false,
+          entities: [FeatureFlag, Rule, Variant],
+          synchronize: true,
 
           ssl: {
             rejectUnauthorized: false,

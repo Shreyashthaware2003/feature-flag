@@ -22,16 +22,25 @@ export class EvaluationService {
 
         const variant = this.getVariant(flag, user);
 
-        return {
-            enabled: true,
-            variant,
-        };
+        if (flag.type === 'boolean') {
+            return { enabled, variant };
+        }
+
+        if (flag.type === 'config') {
+            return {
+                enabled,
+                variant,
+                config: enabled ? flag.value : null
+            };
+        }
+
+        return { enabled, variant };
     }
 
     private isFeatureEnabled(flag: any, user: any): boolean {
         if (!flag.enabled) return false;
 
-        const rulesMatch = this.evaluateRules(flag.rules, user);
+        const rulesMatch = this.evaluateRules(flag, user);
         if (!rulesMatch) return false;
 
         return this.evaluateRollout(flag, user);
@@ -60,46 +69,62 @@ export class EvaluationService {
         return variants[0].name;
     }
 
-    private evaluateRules(rules: any[], user: any): boolean {
+    private evaluateRules(flag: any, user: any): boolean {
+        const rules = flag.rules;
+
         if (!rules || rules.length === 0) return true;
 
-        return rules.every(rule => {
-            const userValue = user[rule.field];
+        if (flag.rule_type === 'OR') {
+            return rules.some(rule => this.evaluateSingleRule(rule, user));
+        }
 
-            switch (rule.operator) {
-                case 'equals':
-                    return userValue === rule.value;
+        return rules.every(rule => this.evaluateSingleRule(rule, user));
+    }
 
-                case 'not_equals':
-                    return userValue !== rule.value;
+    private evaluateSingleRule(rule: any, user: any): boolean {
+        const userValue = user[rule.field];
 
-                case 'greater_than':
-                    return Number(userValue) > Number(rule.value);
+        if (userValue === undefined || userValue === null) {
+            return false;
+        }
 
-                case 'greater_than_equal':
-                    return Number(userValue) >= Number(rule.value);
+        switch (rule.operator) {
+            case 'equals':
+                return userValue === rule.value;
 
-                case 'less_than':
-                    return Number(userValue) < Number(rule.value);
+            case 'not_equals':
+                return userValue !== rule.value;
 
-                case 'less_than_equal':
-                    return Number(userValue) <= Number(rule.value);
+            case 'greater_than':
+                return Number(userValue) > Number(rule.value);
 
-                case 'includes':
-                    return Array.isArray(userValue)
-                        ? userValue.includes(rule.value)
-                        : String(userValue).includes(rule.value);
+            case 'greater_than_equal':
+                return Number(userValue) >= Number(rule.value);
 
-                default:
-                    return false;
-            }
-        });
+            case 'less_than':
+                return Number(userValue) < Number(rule.value);
+
+            case 'less_than_equal':
+                return Number(userValue) <= Number(rule.value);
+
+            case 'includes':
+                return Array.isArray(userValue)
+                    ? userValue.includes(rule.value)
+                    : String(userValue).includes(rule.value);
+
+            default:
+                return false;
+        }
     }
 
     private evaluateRollout(flag: any, user: any): boolean {
-        const percentage = flag.rollout_percentage || 0;
+        const percentage = flag.rollout_percentage ?? 100;
 
-        const hash = this.hash(`${user.id}:${flag.flag_key}`);
+        if (percentage <= 0) return false;
+        if (percentage >= 100) return true;
+
+        const identifier = user?.id || user?.email || "anonymous";
+        const hash = this.hash(`${identifier}:${flag.flag_key}`);
 
         return hash % 100 < percentage;
     }

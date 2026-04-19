@@ -7,9 +7,10 @@ import { EvaluationController } from "./evaluation.controller";
 import { FeatureModule } from "../feature/feature.module";
 
 @Module({
-    imports: [TypeOrmModule.forFeature([FeatureFlag, Rule]),FeatureModule],
+    imports: [TypeOrmModule.forFeature([FeatureFlag, Rule]), FeatureModule],
     providers: [EvaluationService],
-    controllers: [EvaluationController]
+    controllers: [EvaluationController],
+    exports: [EvaluationService]
 })
 
 export class EvaluationModule { }
