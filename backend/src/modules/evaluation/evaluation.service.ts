@@ -1,142 +1,144 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { FeatureService } from '../feature/feature.service';
+import { UserContext } from './dto/evaluate-flag.dto';
+import { FeatureFlag } from './entity/feature-flag.entity';
 
 @Injectable()
 export class EvaluationService {
-    constructor(private readonly featureService: FeatureService) { }
+  constructor(private readonly featureService: FeatureService) {}
 
-    async evaluate(flagKey: string, user: any) {
-        // 1. Fetch from DB
-        const flag = await this.featureService.getFlagWithRules(flagKey);
+  async evaluate(flagKey: string, user: UserContext) {
+    // 1. Fetch from DB
+    const flag = await this.featureService.getFlagWithRules(flagKey);
 
-        if (!flag) {
-            throw new NotFoundException('Feature flag not found');
-        }
-
-        // 2. Run evaluation
-        const enabled = this.isFeatureEnabled(flag, user);
-
-        if (!enabled) {
-            return { enabled: false };
-        }
-
-        const variant = this.getVariant(flag, user);
-
-        if (flag.type === 'boolean') {
-            return { enabled, variant };
-        }
-
-        if (flag.type === 'config') {
-            return {
-                enabled,
-                variant,
-                config: enabled ? flag.value : null
-            };
-        }
-
-        return { enabled, variant };
+    if (!flag) {
+      throw new NotFoundException('Feature flag not found');
     }
 
-    private isFeatureEnabled(flag: any, user: any): boolean {
-        if (!flag.enabled) return false;
+    // 2. Run evaluation
+    const enabled = this.isFeatureEnabled(flag, user);
 
-        const rulesMatch = this.evaluateRules(flag, user);
-        if (!rulesMatch) return false;
-
-        return this.evaluateRollout(flag, user);
+    if (!enabled) {
+      return { enabled: false };
     }
 
-    private getVariant(flag: any, user: any): string {
-        const variants = flag.variants;
+    const variant = this.getVariant(flag, user);
 
-        if (!variants || variants.length === 0) {
-            return 'default';
-        }
-
-        const hash = this.hash(`${user.id}:${flag.flag_key}`);
-        const bucket = hash % 100;
-
-        let cumulative = 0;
-
-        for (const variant of variants) {
-            cumulative += variant.weight;
-
-            if (bucket < cumulative) {
-                return variant.name;
-            }
-        }
-
-        return variants[0].name;
+    if (flag.type === 'boolean') {
+      return { enabled, variant };
     }
 
-    private evaluateRules(flag: any, user: any): boolean {
-        const rules = flag.rules;
-
-        if (!rules || rules.length === 0) return true;
-
-        if (flag.rule_type === 'OR') {
-            return rules.some(rule => this.evaluateSingleRule(rule, user));
-        }
-
-        return rules.every(rule => this.evaluateSingleRule(rule, user));
+    if (flag.type === 'config') {
+      return {
+        enabled,
+        variant,
+        config: enabled ? flag.value : null,
+      };
     }
 
-    private evaluateSingleRule(rule: any, user: any): boolean {
-        const userValue = user[rule.field];
+    return { enabled, variant };
+  }
 
-        if (userValue === undefined || userValue === null) {
-            return false;
-        }
+  private isFeatureEnabled(flag: FeatureFlag, user: UserContext): boolean {
+    if (!flag.enabled) return false;
 
-        switch (rule.operator) {
-            case 'equals':
-                return userValue === rule.value;
+    const rulesMatch = this.evaluateRules(flag, user);
+    if (!rulesMatch) return false;
 
-            case 'not_equals':
-                return userValue !== rule.value;
+    return this.evaluateRollout(flag, user);
+  }
 
-            case 'greater_than':
-                return Number(userValue) > Number(rule.value);
+  private getVariant(flag: any, user: any): string {
+    const variants = flag.variants;
 
-            case 'greater_than_equal':
-                return Number(userValue) >= Number(rule.value);
-
-            case 'less_than':
-                return Number(userValue) < Number(rule.value);
-
-            case 'less_than_equal':
-                return Number(userValue) <= Number(rule.value);
-
-            case 'includes':
-                return Array.isArray(userValue)
-                    ? userValue.includes(rule.value)
-                    : String(userValue).includes(rule.value);
-
-            default:
-                return false;
-        }
+    if (!variants || variants.length === 0) {
+      return 'default';
     }
 
-    private evaluateRollout(flag: any, user: any): boolean {
-        const percentage = flag.rollout_percentage ?? 100;
+    const hash = this.hash(`${user.id}:${flag.flag_key}`);
+    const bucket = hash % 100;
 
-        if (percentage <= 0) return false;
-        if (percentage >= 100) return true;
+    let cumulative = 0;
 
-        const identifier = user?.id || user?.email || "anonymous";
-        const hash = this.hash(`${identifier}:${flag.flag_key}`);
+    for (const variant of variants) {
+      cumulative += variant.weight;
 
-        return hash % 100 < percentage;
+      if (bucket < cumulative) {
+        return variant.name;
+      }
     }
 
-    private hash(str: string): number {
-        let hash = 0;
+    return variants[0].name;
+  }
 
-        for (let i = 0; i < str.length; i++) {
-            hash = (hash << 5) - hash + str.charCodeAt(i);
-            hash |= 0;
-        }
+  private evaluateRules(flag: FeatureFlag, user: UserContext): boolean {
+    const rules = flag.rules;
 
-        return Math.abs(hash);
+    if (!rules || rules.length === 0) return true;
+
+    if (flag.rule_type === 'OR') {
+      return rules.some((rule) => this.evaluateSingleRule(rule, user));
     }
+
+    return rules.every((rule) => this.evaluateSingleRule(rule, user));
+  }
+
+  private evaluateSingleRule(rule: any, user: any): boolean {
+    const userValue = user[rule.field];
+
+    if (userValue === undefined || userValue === null) {
+      return false;
+    }
+
+    switch (rule.operator) {
+      case 'equals':
+        return userValue === rule.value;
+
+      case 'not_equals':
+        return userValue !== rule.value;
+
+      case 'greater_than':
+        return Number(userValue) > Number(rule.value);
+
+      case 'greater_than_equal':
+        return Number(userValue) >= Number(rule.value);
+
+      case 'less_than':
+        return Number(userValue) < Number(rule.value);
+
+      case 'less_than_equal':
+        return Number(userValue) <= Number(rule.value);
+
+      case 'includes':
+        return Array.isArray(userValue)
+          ? userValue.includes(rule.value)
+          : String(userValue).includes(rule.value);
+
+      default:
+        return false;
+    }
+  }
+
+  private evaluateRollout(flag: any, user: any): boolean {
+    const percentage = flag.rollout_percentage ?? 100;
+
+    if (percentage <= 0) return false;
+    if (percentage >= 100) return true;
+
+    const identifier = user?.id || user?.email || 'anonymous';
+    const hash = this.hash(`${identifier}:${flag.flag_key}`);
+
+    return hash % 100 < percentage;
+  }
+
+  private hash(str: string): number {
+    let hash = 0;
+
+    for (let i = 0; i < str.length; i++) {
+      hash = (hash << 5) - hash + str.charCodeAt(i);
+      hash |= 0;
+    }
+
+    return Math.abs(hash);
+  }
 }

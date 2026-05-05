@@ -1,31 +1,31 @@
-import axios from "axios";
-import { User, EvaluateResponse } from "./types";
+import axios from 'axios';
+import { User, EvaluateResponse } from './types';
 
 export class FeatureSDK {
-    private apiUrl: string;
+  private apiUrl: string;
 
-    constructor(options: { apiUrl: string }) {
-        this.apiUrl = options.apiUrl;
-    }
+  constructor(options: { apiUrl: string }) {
+    this.apiUrl = options.apiUrl;
+  }
 
-    async evaluate(flagKey: string, user: User): Promise<EvaluateResponse> {
-        const response = await axios.post(`${this.apiUrl}/evaluate`, {
-            flagKey,
-            user,
-        });
+  async evaluate(flagKey: string, user: User): Promise<EvaluateResponse> {
+    const response = await axios.post(`${this.apiUrl}/evaluate`, {
+      flagKey,
+      user,
+    });
 
-        return response.data;
-    }
+    return response.data;
+  }
 
-    async isEnabled(flagKey: string, user: User): Promise<boolean> {
-        const res = await this.evaluate(flagKey, user);
-        return res.enabled;
-    }
+  async isEnabled(flagKey: string, user: User): Promise<boolean> {
+    const res = await this.evaluate(flagKey, user);
+    return res.enabled;
+  }
 
-    async getConfig(flagKey: string, user: User): Promise<any> {
-        const res = await this.evaluate(flagKey, user);
-        if (!res.enabled) return null; // 👈 FIX
+  async getConfig(flagKey: string, user: User): Promise<any> {
+    const res = await this.evaluate(flagKey, user);
+    if (!res.enabled) return null; // 👈 FIX
 
-        return res.config || null;
-    }
+    return res.config || null;
+  }
 }

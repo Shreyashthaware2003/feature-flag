@@ -6,7 +6,6 @@ import { FeatureFlag } from './modules/evaluation/entity/feature-flag.entity';
 import { Rule } from './modules/evaluation/entity/rule.entity';
 import { Variant } from './modules/evaluation/entity/variant.entity';
 
-
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -19,7 +18,7 @@ import { Variant } from './modules/evaluation/entity/variant.entity';
       useFactory: (config: ConfigService) => {
         const dbUrl = config.get<string>('DATABASE_URL');
 
-        console.log("DB URL FROM CONFIG:", dbUrl); // keep this for debug
+        console.log('DB URL FROM CONFIG:', dbUrl); // keep this for debug
 
         return {
           type: 'postgres',
@@ -41,8 +40,7 @@ import { Variant } from './modules/evaluation/entity/variant.entity';
       },
     }),
 
-
-    EvaluationModule
+    EvaluationModule,
   ],
 })
-export class AppModule { }
+export class AppModule {}

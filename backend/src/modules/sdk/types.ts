@@ -1,11 +1,11 @@
 export interface User {
-    id?: string;
-    email?: string;
-    [key: string]: any;
+  id?: string;
+  email?: string;
+  [key: string]: any;
 }
 
 export interface EvaluateResponse {
-    enabled: boolean;
-    variant?: string;
-    config?: any;
+  enabled: boolean;
+  variant?: string;
+  config?: any;
 }
