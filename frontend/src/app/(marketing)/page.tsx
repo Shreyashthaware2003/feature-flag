@@ -16,10 +16,23 @@ import { Slider } from '@/components/ui/slider';
 import { useState } from 'react';
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { useRouter } from 'next/navigation';
+import { useAppSelector } from '@/redux/hooks';
+import { getStoredAccessToken } from '@/redux/features/auth/token-storage';
 
 export default function Home() {
-
+    const router = useRouter();
+    const { accessToken } = useAppSelector((state) => state.auth);
     const [percentage, setPercentage] = useState([65]);
+    const isLoggedIn = Boolean(accessToken ?? getStoredAccessToken());
+
+    const handleSignInClick = () => {
+        router.push(isLoggedIn ? '/dashboard/overview' : '/auth/login');
+    };
+
+    const handleGetStartedClick = () => {
+        router.push(isLoggedIn ? '/dashboard/overview' : '/auth/signup');
+    };
 
     const targeting_rules = [
         {
@@ -98,10 +111,14 @@ export default async function Dashboard({ user }) {
                         </div>
                     </div>
                     <div className="flex items-center gap-4">
-                        <Button variant={'ghost'} className="text-xs font-medium text-gray-700 hover:text-gray-900 px-4 cursor-pointer">
+                        <Button
+                            onClick={handleSignInClick}
+                            variant={'ghost'}
+                            className="text-xs font-medium text-gray-700 hover:text-gray-900 px-4 cursor-pointer"
+                        >
                             Sign In
                         </Button>
-                        <Button className="bg-blue-600 hover:bg-blue-700 text-white text-xs">
+                        <Button onClick={handleGetStartedClick} className="bg-blue-600 hover:bg-blue-700 text-white text-xs">
                             Get Started
                         </Button>
                     </div>
@@ -135,7 +152,10 @@ export default async function Dashboard({ user }) {
                                 high-performance orchestration engine.
                             </p>
                             <div className="flex items-center gap-4 text-xs">
-                                <Button className="bg-blue-600 hover:bg-blue-700 text-white px-6 cursor-pointer">
+                                <Button
+                                    onClick={handleGetStartedClick}
+                                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 cursor-pointer"
+                                >
                                     Get Started
                                 </Button>
                                 <button className="flex items-center gap-2 text-gray-700 font-medium hover:text-gray-900 cursor-pointer">
@@ -184,7 +204,7 @@ export default async function Dashboard({ user }) {
                                             TARGETING RULES
                                         </p>
                                         <div className="bg-gray-100 rounded p-3 space-y-2 space-x-3">
-                                            {targeting_rules.map((item, index) => (
+                                            {targeting_rules.map((item) => (
                                                 <Badge key={item.value} className='text-[10px] py-2 bg-blue-200 text-black'>{item.value}</Badge>
                                             ))}
                                         </div>
@@ -215,7 +235,7 @@ export default async function Dashboard({ user }) {
                         {features.map((item) => {
                             const Icon = item.icon;
                             return (
-                                <div className="border border-gray-200 rounded-lg p-6">
+                                <div key={item.title} className="border border-gray-200 rounded-lg p-6">
                                     <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
                                         <Icon />
                                     </div>

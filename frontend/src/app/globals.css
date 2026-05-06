@@ -139,3 +139,9 @@ html::-webkit-scrollbar,
 body::-webkit-scrollbar {
   display: none; /* Chrome, Safari */
 }
+
+@layer components {
+  .card-surface {
+    @apply bg-gray-100 dark:bg-[#302f2f] border border-gray-300 dark:border-[#302f2f];
+  }
+}
