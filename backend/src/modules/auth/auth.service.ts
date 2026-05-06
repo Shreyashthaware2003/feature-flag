@@ -20,7 +20,7 @@ type TokenPair = {
 };
 
 type AuthResponse = {
-  user: { id: string; email: string; isActive: boolean };
+  user: { id: string; email: string; full_name: string; isActive: boolean };
   tokens: TokenPair;
 };
 
@@ -46,6 +46,7 @@ export class AuthService {
     const passwordHash = await hash(dto.password, 10);
     const user = this.userRepo.create({
       email: dto.email,
+      full_name: dto.full_name,
       passwordHash,
       isActive: true,
       refreshTokenHash: null,
@@ -59,6 +60,7 @@ export class AuthService {
       user: {
         id: createdUser.id,
         email: createdUser.email,
+        full_name: createdUser.full_name,
         isActive: createdUser.isActive,
       },
       tokens,
@@ -68,7 +70,7 @@ export class AuthService {
   async login(dto: LoginDto): Promise<AuthResponse> {
     const user = await this.userRepo.findOne({
       where: { email: dto.email },
-      select: ['id', 'email', 'passwordHash', 'isActive'],
+      select: ['id', 'email', 'full_name', 'passwordHash', 'isActive'],
     });
 
     if (!user) {
@@ -91,6 +93,7 @@ export class AuthService {
       user: {
         id: user.id,
         email: user.email,
+        full_name: user.full_name,
         isActive: user.isActive,
       },
       tokens,
@@ -102,7 +105,7 @@ export class AuthService {
 
     const user = await this.userRepo.findOne({
       where: { id: payload.sub },
-      select: ['id', 'email', 'isActive', 'refreshTokenHash'],
+      select: ['id', 'email', 'full_name', 'isActive', 'refreshTokenHash'],
     });
 
     if (!user || !user.refreshTokenHash) {
@@ -125,6 +128,7 @@ export class AuthService {
       user: {
         id: user.id,
         email: user.email,
+        full_name: user.full_name,
         isActive: user.isActive,
       },
       tokens,
@@ -139,7 +143,7 @@ export class AuthService {
   async getProfile(userId: string) {
     const user = await this.userRepo.findOne({
       where: { id: userId },
-      select: ['id', 'email', 'isActive', 'createdAt', 'updatedAt'],
+      select: ['id', 'email', 'full_name', 'isActive', 'createdAt', 'updatedAt'],
     });
 
     if (!user) {
