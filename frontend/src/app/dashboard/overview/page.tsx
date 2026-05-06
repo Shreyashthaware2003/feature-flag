@@ -1,4 +1,4 @@
-import OverviewLayoutContent from "@/modules/overview/overview-layout";
+import OverviewLayoutContent from "@/modules/dashboard/layout/overview-layout";
 
 export default function OverviewPage() {
   return <OverviewLayoutContent />;

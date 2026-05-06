@@ -8,7 +8,8 @@ import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { signup } from "@/redux/features/auth/auth.slice";
+import { clearAuthError, signup } from "@/redux/features/auth/auth.slice";
+import { toast } from "sonner";
 
 function Signup() {
     const router = useRouter();
@@ -18,9 +19,16 @@ function Signup() {
     const [fullName, setFullName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [formError, setFormError] = useState<string | null>(null);
 
     const handleCreateAccount = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        setFormError(null);
+
+        if (!fullName.trim() || !email.trim() || !password.trim()) {
+            setFormError("Full name, email, and password are required.");
+            return;
+        }
 
         const result = await dispatch(
             signup({
@@ -32,6 +40,7 @@ function Signup() {
 
         if (signup.fulfilled.match(result)) {
             router.push("/dashboard/overview");
+            toast.success("Account created successfully")
         }
     };
 
@@ -69,7 +78,13 @@ function Signup() {
                     <Input
                         id="fullName"
                         value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
+                        onChange={(e) => {
+                            setFullName(e.target.value);
+                            if (error || formError) {
+                                dispatch(clearAuthError());
+                                setFormError(null);
+                            }
+                        }}
                         placeholder="John Doe"
                         className="h-10 rounded-xs border border-black"
                     />
@@ -81,7 +96,13 @@ function Signup() {
                         id="email"
                         type="email"
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        onChange={(e) => {
+                            setEmail(e.target.value);
+                            if (error || formError) {
+                                dispatch(clearAuthError());
+                                setFormError(null);
+                            }
+                        }}
                         placeholder="you@company.com"
                         className="h-10 rounded-xs border border-black"
                     />
@@ -93,17 +114,29 @@ function Signup() {
                         id="password"
                         type="password"
                         value={password}
-                        onChange={(e) => setPassword(e.target.value)}
+                        onChange={(e) => {
+                            setPassword(e.target.value);
+                            if (error || formError) {
+                                dispatch(clearAuthError());
+                                setFormError(null);
+                            }
+                        }}
                         placeholder="Enter your password"
                         className="h-10 rounded-xs border border-black"
                     />
                 </div>
 
+                {formError && <p className="text-sm text-red-600">{formError}</p>}
                 {error && <p className="text-sm text-red-600">{error}</p>}
 
                 <Button
                     type="submit"
-                    disabled={status === "loading"}
+                    disabled={
+                        status === "loading" ||
+                        !fullName.trim() ||
+                        !email.trim() ||
+                        !password.trim()
+                    }
                     className="mt-4 h-11 rounded-xs bg-black text-white hover:bg-black/90 flex flex-nowrap items-center"
                 >
                     {status === "loading" ? "Creating..." : "Create Account"}

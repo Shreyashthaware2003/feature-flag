@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { TrackingEvent } from '../../tracking/entities/tracking-event.entity';
 import { FeatureFlag } from '../../evaluation/entity/feature-flag.entity';
+import { AccessKey } from '../../access-keys/entities/access-key.entity';
 
 @Entity('users')
 export class User {
@@ -34,6 +35,9 @@ export class User {
 
   @OneToMany(() => FeatureFlag, (flag) => flag.createdBy)
   createdFlags!: FeatureFlag[];
+
+  @OneToMany(() => AccessKey, (accessKey) => accessKey.ownerUser)
+  accessKeys!: AccessKey[];
 
   @CreateDateColumn()
   createdAt!: Date;

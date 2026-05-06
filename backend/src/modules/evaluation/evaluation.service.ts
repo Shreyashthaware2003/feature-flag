@@ -10,6 +10,7 @@ type EvaluationResult = {
   enabled: boolean;
   variant?: string;
   config?: unknown;
+  reason?: string;
 };
 
 @Injectable()
@@ -37,7 +38,10 @@ export class EvaluationService {
 
     let result: EvaluationResult;
     if (!enabled) {
-      result = { enabled: false };
+      result = {
+        enabled: false,
+        reason: 'Flag disabled by rule or rollout check',
+      };
     } else {
       const variant = this.getVariant(flag, user);
       if (flag.type === 'config') {
@@ -45,9 +49,10 @@ export class EvaluationService {
           enabled,
           variant,
           config: enabled ? flag.value : null,
+          reason: 'Flag enabled with config payload',
         };
       } else {
-        result = { enabled, variant };
+        result = { enabled, variant, reason: 'Flag enabled' };
       }
     }
 

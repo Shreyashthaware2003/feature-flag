@@ -7,12 +7,16 @@ import { EvaluationService } from './evaluation.service';
 import { EvaluationController } from './evaluation.controller';
 import { FeatureModule } from '../feature/feature.module';
 import { TrackingModule } from '../tracking/tracking.module';
+import { AccessKeysModule } from '../access-keys/access-keys.module';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([FeatureFlag, Rule, Variant]),
     FeatureModule,
     TrackingModule,
+    AccessKeysModule,
+    AuthModule,
   ],
   providers: [EvaluationService],
   controllers: [EvaluationController],

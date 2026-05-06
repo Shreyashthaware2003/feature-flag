@@ -13,6 +13,8 @@ import { Variant } from './modules/evaluation/entity/variant.entity';
 import { User } from './modules/auth/entities/user.entity';
 import { TrackingEvent } from './modules/tracking/entities/tracking-event.entity';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
+import { AccessKey } from './modules/access-keys/entities/access-key.entity';
+import { AccessKeysModule } from './modules/access-keys/access-keys.module';
 
 @Module({
   imports: [
@@ -28,7 +30,7 @@ import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
           type: 'postgres',
           url: dbUrl,
           autoLoadEntities: true,
-          entities: [FeatureFlag, Rule, Variant, User, TrackingEvent],
+          entities: [FeatureFlag, Rule, Variant, User, TrackingEvent, AccessKey],
           synchronize: true,
           ssl: { rejectUnauthorized: false },
           extra: { ssl: { rejectUnauthorized: false } },
@@ -40,6 +42,7 @@ import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
     FeatureModule,
     EvaluationModule,
     AnalyticsModule,
+    AccessKeysModule,
   ],
   providers: [
     {

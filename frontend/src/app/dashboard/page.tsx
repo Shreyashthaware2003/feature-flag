@@ -1,5 +1,5 @@
-import DashboardLayoutContent from "@/modules/dashboard/layout/dashboard-layout";
+import { redirect } from "next/navigation";
 
 export default function DashboardPage() {
-  return <DashboardLayoutContent />;
+  redirect("/dashboard/overview");
 }

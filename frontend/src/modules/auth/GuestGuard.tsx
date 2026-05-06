@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAppSelector } from "@/redux/hooks";
+import { getStoredAccessToken } from "@/redux/features/auth/token-storage";
 
 type GuestGuardProps = {
   children: React.ReactNode;
@@ -12,14 +13,15 @@ export default function GuestGuard({ children }: GuestGuardProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { accessToken } = useAppSelector((state) => state.auth);
+  const effectiveToken = accessToken ?? getStoredAccessToken();
 
   useEffect(() => {
-    if (!accessToken) return;
+    if (!effectiveToken) return;
 
     const next = searchParams.get("next");
     router.replace(next || "/dashboard/overview");
-  }, [accessToken, router, searchParams]);
+  }, [effectiveToken, router, searchParams]);
 
-  if (accessToken) return null;
+  if (effectiveToken) return null;
   return <>{children}</>;
 }

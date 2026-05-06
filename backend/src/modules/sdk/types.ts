@@ -8,4 +8,5 @@ export interface EvaluateResponse {
   enabled: boolean;
   variant?: string;
   config?: any;
+  reason?: string;
 }

@@ -6,6 +6,7 @@ import {
   refreshApi,
   signupApi,
 } from "./api/auth.api";
+import { clearStoredTokens, setStoredTokens } from "./token-storage";
 import type {
   AuthResponse,
   AuthState,
@@ -35,21 +36,27 @@ function getErrorMessage(error: unknown, fallback: string): string {
 export const signup = createAsyncThunk<AuthResponse, SignupPayload>(
   "auth/signup",
   async (payload) => {
-    return await signupApi(payload);
+    const response = await signupApi(payload);
+    setStoredTokens(response.tokens);
+    return response;
   },
 );
 
 export const login = createAsyncThunk<AuthResponse, LoginPayload>(
   "auth/login",
   async (payload) => {
-    return await loginApi(payload);
+    const response = await loginApi(payload);
+    setStoredTokens(response.tokens);
+    return response;
   },
 );
 
 export const refreshSession = createAsyncThunk<AuthResponse, RefreshPayload>(
   "auth/refreshSession",
   async (payload) => {
-    return await refreshApi(payload);
+    const response = await refreshApi(payload);
+    setStoredTokens(response.tokens);
+    return response;
   },
 );
 
@@ -64,7 +71,9 @@ export const logout = createAsyncThunk<
   { message: string },
   { accessToken: string }
 >("auth/logout", async ({ accessToken }) => {
-  return await logoutApi(accessToken);
+  const response = await logoutApi(accessToken);
+  clearStoredTokens();
+  return response;
 });
 
 const authSlice = createSlice({
@@ -88,6 +97,7 @@ const authSlice = createSlice({
       state.status = "idle";
       state.meStatus = "idle";
       state.error = null;
+      clearStoredTokens();
     },
     clearAuthError: (state) => {
       state.error = null;

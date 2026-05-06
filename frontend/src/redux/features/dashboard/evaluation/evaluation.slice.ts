@@ -1,5 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { evaluateFlagApi } from "./api/evaluation.api";
+import type { RootState } from "@/redux/store";
+import { getStoredAccessToken } from "@/redux/features/auth/token-storage";
 import type {
   EvaluationState,
   EvaluateRequest,
@@ -14,8 +16,13 @@ const initialState: EvaluationState = {
 
 export const evaluateFlag = createAsyncThunk<EvaluateResponse, EvaluateRequest>(
   "dashboard/evaluation/evaluateFlag",
-  async (payload) => {
-    return await evaluateFlagApi(payload);
+  async (payload, { getState }) => {
+    const state = getState() as RootState;
+    const token = state.auth.accessToken ?? getStoredAccessToken();
+    if (!token) {
+      throw new Error("Authentication required");
+    }
+    return await evaluateFlagApi(token, payload);
   },
 );
 

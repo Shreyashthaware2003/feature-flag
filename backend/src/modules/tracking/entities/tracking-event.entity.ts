@@ -38,6 +38,6 @@ export class TrackingEvent {
   @Column({ type: 'jsonb', nullable: true })
   metadata!: Record<string, unknown> | null;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt!: Date;
 }

@@ -153,6 +153,44 @@ export class AuthService {
     return user;
   }
 
+  async validateAccessToken(token: string): Promise<{
+    userId: string;
+    email: string;
+    isActive: boolean;
+  }> {
+    if (!token) {
+      throw new UnauthorizedException('Authentication required');
+    }
+
+    let payload: { sub: string; email: string };
+    try {
+      const accessSecret =
+        this.configService.get<string>('JWT_ACCESS_SECRET') ??
+        'dev-access-secret';
+      payload = await this.jwtService.verifyAsync<{ sub: string; email: string }>(
+        token,
+        { secret: accessSecret },
+      );
+    } catch {
+      throw new UnauthorizedException('Invalid access token');
+    }
+
+    const user = await this.userRepo.findOne({
+      where: { id: payload.sub },
+      select: ['id', 'email', 'isActive'],
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    if (!user.isActive) {
+      throw new ForbiddenException('User account is inactive');
+    }
+
+    return { userId: user.id, email: user.email, isActive: user.isActive };
+  }
+
   private async storeRefreshTokenHash(
     userId: string,
     refreshToken: string,

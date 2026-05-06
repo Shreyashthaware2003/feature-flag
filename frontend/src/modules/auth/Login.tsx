@@ -8,16 +8,18 @@ import { Separator } from "@/components/ui/separator";
 import { ArrowRight } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { login } from "@/redux/features/auth/auth.slice";
+import { clearAuthError, login } from "@/redux/features/auth/auth.slice";
+import { toast } from "sonner";
 
 function Login() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const dispatch = useAppDispatch();
-  const { status, error } = useAppSelector((state) => state.auth);
+  const {  status, error } = useAppSelector((state) => state.auth);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [formError, setFormError] = useState<string | null>(null);
 
   const handleCreate = () => {
     router.push("/auth/signup");
@@ -25,11 +27,19 @@ function Login() {
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setFormError(null);
+
+    if (!email.trim() || !password.trim()) {
+      setFormError("Email and password are required.");
+      return;
+    }
+
     const result = await dispatch(login({ email, password }));
 
     if (login.fulfilled.match(result)) {
       const next = searchParams.get("next");
       router.push(next || "/dashboard/overview");
+      toast.success("Login successfully");
     }
   };
 
@@ -66,7 +76,13 @@ function Login() {
             id="email"
             type="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              if (error || formError) {
+                dispatch(clearAuthError());
+                setFormError(null);
+              }
+            }}
             placeholder="you@company.com"
             className="h-10 rounded-xs border border-black"
           />
@@ -78,24 +94,31 @@ function Login() {
             id="password"
             type="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              if (error || formError) {
+                dispatch(clearAuthError());
+                setFormError(null);
+              }
+            }}
             placeholder="Enter your password"
             className="h-10 rounded-xs border border-black"
           />
         </div>
 
+        {formError && <p className="text-sm text-red-600">{formError}</p>}
         {error && <p className="text-sm text-red-600">{error}</p>}
 
         <Button
           type="submit"
-          disabled={status === "loading"}
+          disabled={status === "loading" || !email.trim() || !password.trim()}
           className="mt-4 h-11 rounded-xs bg-black text-white hover:bg-black/90 flex flex-nowrap items-center"
         >
           {status === "loading" ? "Logging in..." : "Login Account"}
           <ArrowRight />
         </Button>
         <div className="text-center text-sm">
-          <span className="text-gray-500 ">Don't have an account?</span>
+          <span className="text-gray-500 ">Don&apos;t have an account?</span>
           <Button
             type="button"
             onClick={handleCreate}

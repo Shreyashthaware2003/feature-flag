@@ -42,9 +42,13 @@ export type CreateFlagPayload = {
   variants?: Variant[];
 };
 
+export type UpdateFlagPayload = Partial<CreateFlagPayload>;
+
 export type FlagsState = {
   items: FeatureFlag[];
   fetchStatus: "idle" | "loading" | "succeeded" | "failed";
   createStatus: "idle" | "loading" | "succeeded" | "failed";
+  updateStatus: "idle" | "loading" | "succeeded" | "failed";
+  deleteStatus: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
 };
