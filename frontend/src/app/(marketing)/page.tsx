@@ -17,10 +17,22 @@ import { useState } from 'react';
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { useRouter } from 'next/navigation';
+import { useAppSelector } from '@/redux/hooks';
+import { getStoredAccessToken } from '@/redux/features/auth/token-storage';
 
 export default function Home() {
     const router = useRouter();
+    const { accessToken } = useAppSelector((state) => state.auth);
     const [percentage, setPercentage] = useState([65]);
+    const isLoggedIn = Boolean(accessToken ?? getStoredAccessToken());
+
+    const handleSignInClick = () => {
+        router.push(isLoggedIn ? '/dashboard/overview' : '/auth/login');
+    };
+
+    const handleGetStartedClick = () => {
+        router.push(isLoggedIn ? '/dashboard/overview' : '/auth/signup');
+    };
 
     const targeting_rules = [
         {
@@ -99,10 +111,14 @@ export default async function Dashboard({ user }) {
                         </div>
                     </div>
                     <div className="flex items-center gap-4">
-                        <Button variant={'ghost'} className="text-xs font-medium text-gray-700 hover:text-gray-900 px-4 cursor-pointer">
+                        <Button
+                            onClick={handleSignInClick}
+                            variant={'ghost'}
+                            className="text-xs font-medium text-gray-700 hover:text-gray-900 px-4 cursor-pointer"
+                        >
                             Sign In
                         </Button>
-                        <Button onClick={() =>router.push('/dashboard')} className="bg-blue-600 hover:bg-blue-700 text-white text-xs">
+                        <Button onClick={handleGetStartedClick} className="bg-blue-600 hover:bg-blue-700 text-white text-xs">
                             Get Started
                         </Button>
                     </div>
@@ -136,7 +152,10 @@ export default async function Dashboard({ user }) {
                                 high-performance orchestration engine.
                             </p>
                             <div className="flex items-center gap-4 text-xs">
-                                <Button className="bg-blue-600 hover:bg-blue-700 text-white px-6 cursor-pointer">
+                                <Button
+                                    onClick={handleGetStartedClick}
+                                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 cursor-pointer"
+                                >
                                     Get Started
                                 </Button>
                                 <button className="flex items-center gap-2 text-gray-700 font-medium hover:text-gray-900 cursor-pointer">
