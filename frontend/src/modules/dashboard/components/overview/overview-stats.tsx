@@ -44,7 +44,7 @@ export default function OverviewStats() {
           >
             <p className="text-sm text-muted-foreground">{stat.label}</p>
             {summaryStatus === "loading" ? (
-              <Skeleton className="mt-2 h-8 w-20" />
+              <Skeleton className="mt-2 h-8 w-20 bg-gray-100 dark:bg-[#302f2f]" />
             ) : (
               <p className="mt-2 text-2xl font-semibold text-card-foreground">
                 {String(stat.value)}

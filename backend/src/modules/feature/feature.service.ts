@@ -16,6 +16,10 @@ export class FeatureService {
   async create(dto: CreateFlagDto, userId: string) {
     const flag = this.flagRepo.create({ ...dto, createdById: userId });
     const created = await this.flagRepo.save(flag);
+    const createdWithRelations = await this.flagRepo.findOne({
+      where: { id: created.id, createdById: userId },
+      relations: ['rules', 'variants'],
+    });
 
     await this.trackingService.track({
       userId,
@@ -27,7 +31,7 @@ export class FeatureService {
       },
     });
 
-    return created;
+    return createdWithRelations ?? created;
   }
 
   async findAll(userId: string) {
@@ -41,6 +45,7 @@ export class FeatureService {
     await this.flagRepo.update({ id, createdById: userId }, dto);
     const updated = await this.flagRepo.findOne({
       where: { id, createdById: userId },
+      relations: ['rules', 'variants'],
     });
 
     if (updated) {

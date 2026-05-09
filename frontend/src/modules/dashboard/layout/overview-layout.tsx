@@ -1,8 +1,8 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import OverviewStats from "../components/overview-stats";
-import RecentActivity from "../components/recent-activity";
+import OverviewStats from "../components/overview/overview-stats";
+import RecentActivity from "../components/overview/recent-activity";
 
 export default function OverviewLayout() {
   return (

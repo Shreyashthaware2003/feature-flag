@@ -13,7 +13,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
             <div className="flex min-h-screen w-full">
 
             {/* LEFT PANEL */}
-            <section className="relative w-full md:w-1/2 bg-black flex flex-col justify-center items-center p-8 overflow-hidden">
+            <section className="relative w-full md:w-1/2 bg-black hidden sm:flex flex-col justify-center items-center p-8 overflow-hidden">
 
                 {/* Background overlay */}
                 <div className="absolute inset-0 geometric-overlay"></div>

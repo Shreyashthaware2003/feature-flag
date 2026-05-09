@@ -1,5 +1,5 @@
-import FeatureFlagsPanel from "../components/feature-flags-panel";
-import OverviewStats from "../components/overview-stats";
+import FeatureFlagsPanel from "../components/feature-flag/feature-flags-panel";
+import OverviewStats from "../components/overview/overview-stats";
 import QuickEvaluatePanel from "../components/quick-evaluate-panel";
 
 export default function DashboardLayoutContent() {

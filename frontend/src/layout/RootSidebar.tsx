@@ -36,6 +36,7 @@ import { toast } from "sonner";
 import { usePathname } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { clearAuthState, logout } from "@/redux/features/auth/auth.slice";
+import { persistor } from "@/redux/store";
 type RootSidebarProps = {
   collapsed: boolean;
   setCollapsed: Dispatch<SetStateAction<boolean>>;
@@ -62,9 +63,11 @@ export default function RootSidebar({
   const { resolvedTheme, setTheme } = useTheme();
 
   const handleLogout = async () => {
-    if (!accessToken) return;
-    await dispatch(logout({ accessToken }));
+    if (accessToken) {
+      await dispatch(logout({ accessToken }));
+    }
     await dispatch(clearAuthState());
+    await persistor.purge();
     toast.success("Logout successfully");
   };
 

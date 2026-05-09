@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { clearAuthError, signup } from "@/redux/features/auth/auth.slice";
 import { toast } from "sonner";
+import { GoogleIcon } from "@/components/icons/google-icons";
 
 function Signup() {
     const router = useRouter();
@@ -56,11 +57,9 @@ function Signup() {
             </div>
 
             <div className="flex flex-col gap-4 mt-10">
-                <Button className="bg-transparent border border-black rounded-xs h-10 hover:bg-black hover:text-white transition">
+                <Button onClick={() => toast.warning('This option is not available yet.')} className="bg-transparent border border-black rounded-xs h-10 text-black hover:bg-black hover:text-white transition">
+                    <GoogleIcon />
                     Continue with Google
-                </Button>
-                <Button className="bg-transparent border border-black rounded-xs h-10 hover:bg-black hover:text-white transition">
-                    Continue with Github
                 </Button>
             </div>
 
