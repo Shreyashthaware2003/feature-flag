@@ -15,8 +15,10 @@ import { TrackingEvent } from './modules/tracking/entities/tracking-event.entity
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 import { AccessKey } from './modules/access-keys/entities/access-key.entity';
 import { AccessKeysModule } from './modules/access-keys/access-keys.module';
+import { HealthController } from './health.controller';
 
 @Module({
+  controllers: [HealthController],
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,

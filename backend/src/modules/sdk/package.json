@@ -1,6 +1,7 @@
 {
-  "name": "@shrey/feature-flag-sdk",
-  "version": "0.1.0",
+  "name": "featureflow-sdk-js",
+  "version": "0.1.1",
+  "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -9,8 +10,13 @@
   "scripts": {
     "build": "tsc -p tsconfig.json"
   },
-  "type": "module",
   "exports": {
-    ".": "./dist/index.js"
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "dependencies": {
+    "axios": "^1.6.0"
   }
 }
