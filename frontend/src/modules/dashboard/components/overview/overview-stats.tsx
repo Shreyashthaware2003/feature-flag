@@ -13,10 +13,8 @@ export default function OverviewStats() {
   );
 
   useEffect(() => {
-    if (summaryStatus === "idle") {
-      void dispatch(fetchAnalyticsSummary());
-    }
-  }, [dispatch, summaryStatus]);
+    void dispatch(fetchAnalyticsSummary());
+  }, [dispatch]);
 
   const stats = [
     { id: "overview", label: "Total Flags", value: summary?.totalFlags ?? 0 },

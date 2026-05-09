@@ -80,10 +80,8 @@ export default function RecentActivity() {
   );
 
   useEffect(() => {
-    if (activityStatus === "idle") {
-      void dispatch(fetchAnalyticsActivity());
-    }
-  }, [activityStatus, dispatch]);
+    void dispatch(fetchAnalyticsActivity());
+  }, [dispatch]);
 
   return (
     <Card className="rounded-lg border border-border bg-gray-100 ring-0 dark:bg-[#252525]">

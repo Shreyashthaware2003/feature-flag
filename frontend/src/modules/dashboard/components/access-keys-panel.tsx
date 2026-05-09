@@ -50,10 +50,8 @@ export default function AccessKeysPanel() {
   const [newKeyName, setNewKeyName] = useState("");
 
   useEffect(() => {
-    if (listStatus === "idle") {
-      void dispatch(fetchAccessKeys());
-    }
-  }, [dispatch, listStatus]);
+    void dispatch(fetchAccessKeys());
+  }, [dispatch]);
 
   const handleGenerate = async () => {
     const action = await dispatch(

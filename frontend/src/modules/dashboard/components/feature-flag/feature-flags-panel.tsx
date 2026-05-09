@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,27 +32,25 @@ export default function FeatureFlagsPanel() {
   const [showOnlyEnabled, setShowOnlyEnabled] = useState(false);
 
   useEffect(() => {
-    if (fetchStatus === "idle") {
-      void dispatch(fetchFlags());
-    }
-  }, [dispatch, fetchStatus]);
+    void dispatch(fetchFlags());
+  }, [dispatch]);
 
-  const filteredFlags = useMemo(() => {
-    return items.filter((flag) => {
-      const matchesQuery = flag.flag_key
-        .toLowerCase()
-        .includes(query.toLowerCase());
-      const matchesEnabled = showOnlyEnabled ? flag.enabled : true;
-      return matchesQuery && matchesEnabled;
-    });
-  }, [items, query, showOnlyEnabled]);
+  const filteredFlags = items.filter((flag) => {
+    const matchesQuery = flag.flag_key
+      .toLowerCase()
+      .includes(query.toLowerCase());
+    const matchesEnabled = showOnlyEnabled ? flag.enabled : true;
+    return matchesQuery && matchesEnabled;
+  });
 
   const isBusy = updateStatus === "loading" || deleteStatus === "loading";
 
-  const handleToggle = async (id: string, enabled: boolean) => {
-    const result = await dispatch(updateFlag({ id, payload: { enabled: !enabled } }));
+  const handleToggle = async (id: string, nextEnabled: boolean) => {
+    const result = await dispatch(
+      updateFlag({ id, payload: { enabled: nextEnabled } }),
+    );
     if (updateFlag.fulfilled.match(result)) {
-      toast.success(`Flag ${enabled ? "disabled" : "enabled"}`);
+      toast.success(`Flag ${nextEnabled ? "enabled" : "disabled"}`);
     } else {
       toast.error(result.error.message ?? "Failed to update flag");
     }
@@ -143,6 +141,9 @@ export default function FeatureFlagsPanel() {
                 <th className="px-3 py-2 font-medium text-muted-foreground">
                   Actions
                 </th>
+                <th className="px-3 py-2 font-medium text-muted-foreground">
+                  Toggle
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -224,11 +225,13 @@ export default function FeatureFlagsPanel() {
                   <td>
                     <Switch
                       className="data-checked:bg-black dark:data-checked:bg-white"
-                      onClick={() => void handleToggle(flag.id, flag.enabled)}
+                      checked={flag.enabled}
+                      onCheckedChange={(checked) =>
+                        void handleToggle(flag.id, checked)
+                      }
+                      aria-label={`Toggle ${flag.flag_key}`}
                       disabled={isBusy}
-                    >
-                      Toggle
-                    </Switch>
+                    />
                   </td>
                 </tr>
               ))}
