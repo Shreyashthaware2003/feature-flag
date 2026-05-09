@@ -7,7 +7,9 @@ async function bootstrap() {
   const frontendOrigin =
     process.env.FRONTEND_ORIGIN ?? 'http://localhost:3000';
 
-  app.setGlobalPrefix('api/v1');
+  app.setGlobalPrefix('api/v1', {
+    exclude: ['health'],
+  });
   app.enableCors({
     origin: true,
     credentials: true,
