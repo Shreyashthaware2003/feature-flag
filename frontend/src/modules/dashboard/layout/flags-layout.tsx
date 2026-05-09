@@ -1,4 +1,4 @@
-import FeatureFlagsPanel from "../components/feature-flags-panel";
+import FeatureFlagsPanel from "../components/feature-flag/feature-flags-panel";
 
 export default function FlagsLayout() {
   return (

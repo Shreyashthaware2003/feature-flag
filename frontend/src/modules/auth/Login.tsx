@@ -10,12 +10,13 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { clearAuthError, login } from "@/redux/features/auth/auth.slice";
 import { toast } from "sonner";
+import { GoogleIcon } from "@/components/icons/google-icons";
 
 function Login() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const dispatch = useAppDispatch();
-  const {  status, error } = useAppSelector((state) => state.auth);
+  const { status, error } = useAppSelector((state) => state.auth);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -53,11 +54,9 @@ function Login() {
       </div>
 
       <div className="flex flex-col gap-4 mt-10">
-        <Button className="bg-transparent border border-black rounded-xs h-10 hover:bg-black hover:text-white transition">
+        <Button onClick={() => toast.warning('This option is not available yet.')} className="bg-transparent border border-black rounded-xs h-10 text-black hover:bg-black hover:text-white transition">
+          <GoogleIcon />
           Continue with Google
-        </Button>
-        <Button className="bg-transparent border border-black rounded-xs h-10 hover:bg-black hover:text-white transition">
-          Continue with Github
         </Button>
       </div>
 
