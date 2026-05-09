@@ -25,10 +25,8 @@ export default function QuickEvaluatePanel() {
   const [country, setCountry] = useState("IN");
 
   useEffect(() => {
-    if (fetchStatus === "idle") {
-      void dispatch(fetchFlags());
-    }
-  }, [dispatch, fetchStatus]);
+    void dispatch(fetchFlags());
+  }, [dispatch]);
 
   const suggestedFlagKey = flags[0]?.flag_key ?? "";
   const resolvedFlagKey = flagKey.trim() || suggestedFlagKey;
