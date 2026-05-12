@@ -9,8 +9,10 @@ type RequestConfig = {
   cache?: RequestCache;
 };
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5001/api/v1";
+const API_BASE_URL = (
+  process.env.NEXT_PUBLIC_API_BASE_URL ??
+  "http://host.docker.internal:5002/api/v1"
+).replace(/\/+$/, "");
 
 function buildUrl(path: string, query?: QueryParams): string {
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
