@@ -1,4 +1,4 @@
-# Feature Flag Orchestrator
+# FlagPilot
 
 ## 🧠 Problem
 
@@ -119,3 +119,4 @@ It is a **foundation for a scalable feature flag platform**.
 * Can integrate with analytics pipeline
 
 ---
+

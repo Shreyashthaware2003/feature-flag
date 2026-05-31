@@ -1,0 +1,34 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: ff-frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    environment:
+      WATCHPACK_POLLING: "true"
+      CHOKIDAR_USEPOLLING: "true"
+    command: npm run dev -- --hostname 0.0.0.0 --port 3000 --webpack
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ff-backend
+    env_file:
+      - ./backend/environment/development.env
+    ports:
+      - "5002:5002"
+    restart: unless-stopped
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    command: npm run start:dev
