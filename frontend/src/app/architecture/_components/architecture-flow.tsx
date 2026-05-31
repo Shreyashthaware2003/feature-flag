@@ -69,7 +69,7 @@ type ArchitectureFlowProps = {
 
 export default function ArchitectureFlow({ nodes, edges, height = 420 }: ArchitectureFlowProps) {
   return (
-    <div className="overflow-hidden rounded-xl border border-gray-200">
+    <div className="overflow-hidden rounded-xl border border-gray-200 dark:border-white/10">
       <div style={{ height }}>
         <ReactFlow
           nodes={nodes}
