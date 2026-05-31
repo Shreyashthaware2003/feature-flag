@@ -16,7 +16,7 @@ import { Slider } from '@/components/ui/slider';
 import { useState } from 'react';
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
-import { useRouter } from 'next/navigation';
+import { redirect, useRouter } from 'next/navigation';
 import { useAppSelector } from '@/redux/hooks';
 import { getStoredAccessToken } from '@/redux/features/auth/token-storage';
 import Link from 'next/link';
@@ -105,16 +105,18 @@ export default async function Dashboard() {
             <header className="sticky top-0 z-50 bg-white">
                 <nav className=" px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
                     <div className="flex items-center gap-8">
-                        <span className="text-xl font-bold text-black">Flag Pilot</span>
+                        <span className="text-xl font-bold text-black">FlagPilot</span>
                         <div className="hidden md:flex items-center gap-8">
                             <Link href="/docs" className="text-sm font-medium text-gray-700 hover:text-gray-900">
                                 Docs
                             </Link>
-                            <a href="#" className="text-sm font-medium text-gray-700 hover:text-gray-900">
+                            <a
+                                href="https://github.com/Shreyashthaware2003/feature-flag"
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-sm font-medium text-gray-700 hover:text-gray-900"
+                            >
                                 GitHub
-                            </a>
-                            <a href="#" className="text-sm font-medium text-gray-700 hover:text-gray-900">
-                                Changelog
                             </a>
                         </div>
                     </div>
@@ -155,9 +157,7 @@ export default async function Dashboard() {
                                 <span className="text-black">Precision</span>
                             </h1>
                             <p className="text-lg text-gray-600 mb-8 max-w-md">
-                                Scale with confidence. Deploy dark features, run complex A/B tests, and
-                                target users by region, age, or custom behavior—all from a single,
-                                high-performance orchestration engine.
+                                Scale with confidence. Deploy dark features, run complex A/B tests, and target users by region, age, or custom behavior—all from a single, high-performance orchestration engine.
                             </p>
                             <div className="flex items-center gap-4 text-xs">
                                 <Button
@@ -328,11 +328,11 @@ export default async function Dashboard() {
                         Ready to orchestrate your next release?
                     </h2>
                     <p className="text-lg text-gray-300 mb-10">
-                        Join 1,000+ engineering teams shipping code faster and safer than ever
-                        before.
+                        Built as a personal project to demonstrate modern feature flagging,
+                        safe rollouts, and production-minded engineering decisions.
                     </p>
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                        <Button className="bg-white text-black hover:bg-gray-100 px-8 py-6 text-sm font-semibold">
+                        <Button onClick={()=>redirect('/dashboard/overview')} className="bg-white text-black hover:bg-gray-100 px-8 py-6 text-sm font-semibold">
                             Start Free Trial
                         </Button>
                         <Button
@@ -345,28 +345,29 @@ export default async function Dashboard() {
                     </div>
                 </section>
             </div>
-
             {/* Footer */}
             <footer className="bg-gray-50 border-t border-gray-200 py-12">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex flex-col sm:flex-row items-center justify-between">
-                        <span className="text-lg font-bold text-black mb-4 sm:mb-0">
-                            Flag Pilot
+                    <div className="flex flex-col gap-6 sm:gap-5">
+                        <span className="text-lg font-bold text-black text-center sm:text-left">
+                            FlagPilot
                         </span>
-                        <div className="flex items-center gap-8 text-sm text-gray-600">
-                            <span>© 2026 Flag Pilot Inc. Precision engineering for feature management.</span>
-                            <div className="flex gap-6">
-                                <a href="#" className="hover:text-gray-900">
-                                    Privacy
-                                </a>
-                                <a href="#" className="hover:text-gray-900">
-                                    Terms
-                                </a>
-                                <a href="#" className="hover:text-gray-900">
-                                    Security
-                                </a>
-                                <a href="#" className="hover:text-gray-900">
-                                    Status
+                        <div className="flex flex-col gap-4 text-sm text-gray-600 sm:flex-row sm:items-center sm:justify-between">
+                            <span className="text-center sm:text-left">© 2026 FlagPilot Inc. Precision engineering for feature management.</span>
+                            <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 sm:justify-end">
+                                <Link href="/docs" className="hover:text-gray-900">
+                                    Docs
+                                </Link>
+                                <Link href="/architecture" className="hover:text-gray-900">
+                                    Architecture
+                                </Link>
+                                <a
+                                    href="https://github.com/Shreyashthaware2003/feature-flag"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="hover:text-gray-900"
+                                >
+                                    GitHub
                                 </a>
                             </div>
                         </div>
@@ -376,3 +377,5 @@ export default async function Dashboard() {
         </div>
     );
 }
+
+

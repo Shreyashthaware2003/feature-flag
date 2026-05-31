@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { type MouseEvent, useEffect, useMemo, useState } from "react";
+import { type MouseEvent, useEffect, useMemo, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -64,6 +64,14 @@ const decision = await sdk.evaluate("new_dashboard", {
 console.log(decision.enabled);`;
 
 export default function DocsPage() {
+  const mobileNavContainerRef = useRef<HTMLDivElement | null>(null);
+  const mobileNavItemRefs = useRef<Record<string, HTMLAnchorElement | null>>({});
+
+  const mobileNavItems = useMemo(
+    () => sidebarSections.flatMap((section) => section.items),
+    []
+  );
+
   const sectionIds = useMemo(
     () =>
       Array.from(
@@ -102,6 +110,21 @@ export default function DocsPage() {
     return () => observer.disconnect();
   }, [sectionIds]);
 
+  useEffect(() => {
+    const container = mobileNavContainerRef.current;
+    if (!container) return;
+
+    const activeHref = `#${activeSection}`;
+    const activeItem = mobileNavItemRefs.current[activeHref];
+    if (!activeItem) return;
+
+    activeItem.scrollIntoView({
+      behavior: "smooth",
+      inline: "center",
+      block: "nearest",
+    });
+  }, [activeSection]);
+
   const handleNavClick = (href: string) => (event: MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     const id = href.replace("#", "");
@@ -118,7 +141,7 @@ export default function DocsPage() {
       <SiteHeader />
 
       <div className="mx-auto grid w-full grid-cols-1 gap-10 px-4 py-8 sm:px-6 lg:grid-cols-[250px_minmax(0,1fr)] lg:px-8 xl:grid-cols-[250px_minmax(0,1fr)_220px]">
-        <aside className="lg:sticky lg:top-24 lg:h-fit">
+        <aside className="hidden lg:block lg:sticky lg:top-24 lg:h-fit">
           <nav className="space-y-7">
             {sidebarSections.map((section) => (
               <div key={section.title}>
@@ -148,14 +171,40 @@ export default function DocsPage() {
           </nav>
         </aside>
 
-        <main className="max-w-3xl mx-auto">
+        <main className="min-w-0 w-full max-w-3xl mx-auto">
+          <div className="mb-6 sticky top-10 lg:hidden bg-white">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              On this page
+            </p>
+            <div ref={mobileNavContainerRef} className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+              {mobileNavItems.map((item) => (
+                <a
+                  key={`mobile-${item.href}`}
+                  href={item.href}
+                  ref={(el) => {
+                    mobileNavItemRefs.current[item.href] = el;
+                  }}
+                  onClick={handleNavClick(item.href)}
+                  className={cn(
+                    "shrink-0 rounded-md border px-2.5 py-1.5 text-xs transition",
+                    activeSection === item.href.replace("#", "")
+                      ? "bg-muted text-foreground font-medium"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  )}
+                >
+                  {item.label}
+                </a>
+              ))}
+            </div>
+          </div>
+
           <div className="mb-8">
             <Badge variant="secondary" className="mb-4">
               Documentation
             </Badge>
-            <h1 className="text-3xl font-semibold tracking-tight">Build confidently with Flag Pilot</h1>
+            <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">Build confidently with FlagPilot</h1>
             <p className="mt-3 max-w-2xl text-sm text-muted-foreground">
-              This guide helps you set up Flag Pilot, create your first feature flag, and evaluate
+              This guide helps you set up FlagPilot, create your first feature flag, and evaluate
               decisions safely in production.
             </p>
           </div>
@@ -191,7 +240,7 @@ export default function DocsPage() {
             <section id="introduction" className="scroll-mt-24">
               <h2 className="text-xl font-semibold">Introduction</h2>
               <p className="mt-3 text-sm text-muted-foreground">
-                Flag Pilot decouples deployment from release so your team can ship code continuously
+                FlagPilot decouples deployment from release so your team can ship code continuously
                 while controlling who sees what and when.
               </p>
             </section>
@@ -318,3 +367,4 @@ FLAG_PILOT_ACCESS_TOKEN=optional_user_jwt`}</code>
     </div>
   );
 }
+

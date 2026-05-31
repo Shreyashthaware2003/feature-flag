@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
@@ -10,7 +10,6 @@ import { Label } from "@/components/ui/label";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { clearAuthError, signup } from "@/redux/features/auth/auth.slice";
 import { toast } from "sonner";
-import { GoogleIcon } from "@/components/icons/google-icons";
 
 function Signup() {
     const router = useRouter();
@@ -20,6 +19,7 @@ function Signup() {
     const [fullName, setFullName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
     const [formError, setFormError] = useState<string | null>(null);
 
     const handleCreateAccount = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -56,17 +56,10 @@ function Signup() {
                 </span>
             </div>
 
-            <div className="flex flex-col gap-4 mt-10">
-                <Button onClick={() => toast.warning('This option is not available yet.')} className="bg-transparent border border-black rounded-xs h-10 text-black hover:bg-black hover:text-white transition">
-                    <GoogleIcon />
-                    Continue with Google
-                </Button>
-            </div>
-
             <div className="mt-6 flex items-center justify-center gap-6">
                 <Separator className="bg-muted-foreground flex-1" />
                 <span className="text-gray-500 uppercase text-xs font-semibold tracking-widest">
-                    or continue with
+                    continue with email
                 </span>
                 <Separator className="bg-muted-foreground flex-1" />
             </div>
@@ -109,20 +102,30 @@ function Signup() {
 
                 <div className="flex flex-col gap-2">
                     <Label htmlFor="password">Password</Label>
-                    <Input
-                        id="password"
-                        type="password"
-                        value={password}
-                        onChange={(e) => {
-                            setPassword(e.target.value);
-                            if (error || formError) {
-                                dispatch(clearAuthError());
-                                setFormError(null);
-                            }
-                        }}
-                        placeholder="Enter your password"
-                        className="h-10 rounded-xs border border-black"
-                    />
+                    <div className="relative">
+                        <Input
+                            id="password"
+                            type={showPassword ? "text" : "password"}
+                            value={password}
+                            onChange={(e) => {
+                                setPassword(e.target.value);
+                                if (error || formError) {
+                                    dispatch(clearAuthError());
+                                    setFormError(null);
+                                }
+                            }}
+                            placeholder="Enter your password"
+                            className="h-10 rounded-xs border border-black pr-10"
+                        />
+                        <button
+                            type="button"
+                            aria-label={showPassword ? "Hide password" : "Show password"}
+                            onClick={() => setShowPassword((prev) => !prev)}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-600 hover:text-black"
+                        >
+                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </button>
+                    </div>
                 </div>
 
                 {formError && <p className="text-sm text-red-600">{formError}</p>}

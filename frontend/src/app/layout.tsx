@@ -11,8 +11,8 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Flag Pilot",
-  description: "Flag Pilot feature flag management platform",
+  title: "FlagPilot",
+  description: "FlagPilot feature flag management platform",
 };
 
 export default function RootLayout({
@@ -32,3 +32,4 @@ export default function RootLayout({
     </html>
   );
 }
+

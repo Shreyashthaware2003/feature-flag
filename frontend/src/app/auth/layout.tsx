@@ -41,13 +41,13 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
                             <Rocket className="fill-white" />
                         </span>
                         <span className="text-2xl font-bold text-white tracking-wide">
-                            FeatureFlow
+                            FlagPilot
                         </span>
                     </div>
 
                     {/* Heading */}
                     <h1 className="text-4xl font-bold text-white mb-4 leading-tight">
-                        Get started with FeatureFlow
+                        Get started with FlagPilot
                     </h1>
 
                     {/* Description */}
@@ -81,3 +81,4 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
         </GuestGuard>
     );
 }
+

@@ -9,7 +9,8 @@ type DashboardLayoutProps = {
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
     <AuthGuard>
-      <RootLayout title="Flag Pilot Dashboard">{children}</RootLayout>
+      <RootLayout title="FlagPilot Dashboard">{children}</RootLayout>
     </AuthGuard>
   );
 }
+
