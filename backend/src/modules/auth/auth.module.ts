@@ -6,6 +6,7 @@ import { User } from './entities/user.entity';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { MailModule } from '../mail/mail.module';
 import type { SignOptions } from 'jsonwebtoken';
 
 type JwtExpiresIn = NonNullable<SignOptions['expiresIn']>;
@@ -13,6 +14,7 @@ type JwtExpiresIn = NonNullable<SignOptions['expiresIn']>;
 @Module({
   imports: [
     ConfigModule,
+    MailModule,
     TypeOrmModule.forFeature([User]),
     JwtModule.registerAsync({
       imports: [ConfigModule],

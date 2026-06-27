@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Public } from './decorators/public.decorator';
 import { SignupDto } from './dto/signup.dto';
@@ -9,7 +9,7 @@ import { type AuthenticatedUser } from './interfaces/authenticated-user.interfac
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   @Public()
   @Post('signup')
@@ -40,5 +40,11 @@ export class AuthController {
   @Get('me')
   async me(@CurrentUser() user: AuthenticatedUser) {
     return this.authService.getProfile(user.userId);
+  }
+
+  @Public()
+  @Delete('delete')
+  async deleteUserByEmail(@Body('email') email: string) {
+    return this.authService.deleteUserByEmail(email)
   }
 }

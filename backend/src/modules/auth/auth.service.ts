@@ -1,7 +1,10 @@
 import {
+  BadRequestException,
   ConflictException,
   ForbiddenException,
   Injectable,
+  Logger,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -13,6 +16,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { compare, hash } from 'bcryptjs';
 import type { SignOptions } from 'jsonwebtoken';
+import { MailService } from '../mail/mail.service';
 
 type TokenPair = {
   accessToken: string;
@@ -28,12 +32,15 @@ type JwtExpiresIn = NonNullable<SignOptions['expiresIn']>;
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-  ) {}
+    private readonly mailService: MailService,
+  ) { }
 
   async signup(dto: SignupDto): Promise<AuthResponse> {
     const existing = await this.userRepo.findOne({
@@ -52,6 +59,59 @@ export class AuthService {
       refreshTokenHash: null,
     });
     const createdUser = await this.userRepo.save(user);
+    try {
+      const alertEmail = this.configService.get<string>('ALERT_TO_EMAIL');
+      if (!alertEmail) {
+        this.logger.warn('ALERT_TO_EMAIL is not configured. Skipping signup alert email.');
+      } else {
+
+
+        const createdAt = new Intl.DateTimeFormat('en-IN', {
+          day: '2-digit',
+          month: 'short',
+          hour: 'numeric',
+          minute: '2-digit',
+          hour12: true,
+        }).format(new Date());
+        // example: "25 Jan, 2:06 pm"
+
+        const notifyHtml = await this.mailService.renderTemplate('user-created-notify.html', {
+          fullName: createdUser.full_name,
+          email: createdUser.email,
+          createdAt,
+          dashboardUrl: 'https://flagpilot.vercel.app/dashboard',
+        });
+
+        await this.mailService.sendMail({
+          to: alertEmail,
+          subject: 'New user signup',
+          text: `A new user signed up.\nName: ${createdUser.full_name}\nEmail: ${createdUser.email}`,
+          html: notifyHtml,
+        });
+
+        const html = await this.mailService.renderTemplate('account-created.html', {
+          fullName: createdUser.full_name,
+          email: createdUser.email,
+          dashboardUrl: 'https://flagpilot.vercel.app/dashboard'
+        });
+
+        await this.mailService.sendMail({
+          to: createdUser.email,
+          subject: 'Welcome to Feature Flag App - Account Created',
+          text: `Hi ${createdUser.full_name}, your account has been created.`,
+          html,
+        })
+        this.logger.log(
+          `Signup succeeded and alert email sent for ${createdUser.email}`,
+        );
+      }
+    } catch (error) {
+      // log it, but do not block signup
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.warn(
+        `Signup succeeded but alert email failed for ${createdUser.email}: ${message}`,
+      );
+    }
 
     const tokens = await this.generateTokens(createdUser.id, createdUser.email);
     await this.storeRefreshTokenHash(createdUser.id, tokens.refreshToken);
@@ -245,5 +305,20 @@ export class AuthService {
     } catch {
       throw new UnauthorizedException('Invalid refresh token');
     }
+  }
+
+  async deleteUserByEmail(email: string) {
+    if (!email || typeof email !== 'string') {
+      throw new BadRequestException('Valid email is required');
+    }
+
+    const user = await this.userRepo.findOne({ where: { email } });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    await this.userRepo.remove(user);
+    return { message: `${user.email} deleted successfully` }
   }
 }
