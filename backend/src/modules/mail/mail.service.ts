@@ -30,10 +30,8 @@ export class MailService implements OnModuleInit {
             host: smtpHost,
             port: smtpPort,
             secure: smtpPort === 465,
-            auth: {
-                user: smtpUser,
-                pass: smtpPass,
-            },
+            family: 4,
+            auth: { user: smtpUser, pass: smtpPass },
             connectionTimeout: 10000,
             greetingTimeout: 10000,
             socketTimeout: 20000,
