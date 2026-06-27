@@ -138,7 +138,23 @@ export class AuthService {
         ),
     );
 
+    const taskNames = alertEmail
+      ? ['admin-signup-notify', 'user-account-created']
+      : ['user-account-created'];
     const results = await Promise.allSettled(tasks);
+
+    results.forEach((result, index) => {
+      if (result.status === 'rejected') {
+        const reason =
+          result.reason instanceof Error
+            ? (result.reason.stack ?? result.reason.message)
+            : String(result.reason);
+        this.logger.warn(
+          `Email task "${taskNames[index] ?? `task-${index + 1}`}" failed for ${user.email}: ${reason}`,
+        );
+      }
+    });
+
     const rejectedCount = results.filter(
       (result) => result.status === 'rejected',
     ).length;
