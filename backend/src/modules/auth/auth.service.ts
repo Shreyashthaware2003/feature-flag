@@ -59,59 +59,10 @@ export class AuthService {
       refreshTokenHash: null,
     });
     const createdUser = await this.userRepo.save(user);
-    try {
-      const alertEmail = this.configService.get<string>('ALERT_TO_EMAIL');
-      if (!alertEmail) {
-        this.logger.warn('ALERT_TO_EMAIL is not configured. Skipping signup alert email.');
-      } else {
-
-
-        const createdAt = new Intl.DateTimeFormat('en-IN', {
-          day: '2-digit',
-          month: 'short',
-          hour: 'numeric',
-          minute: '2-digit',
-          hour12: true,
-        }).format(new Date());
-        // example: "25 Jan, 2:06 pm"
-
-        const notifyHtml = await this.mailService.renderTemplate('user-created-notify.html', {
-          fullName: createdUser.full_name,
-          email: createdUser.email,
-          createdAt,
-          dashboardUrl: 'https://flagpilot.vercel.app/dashboard',
-        });
-
-        await this.mailService.sendMail({
-          to: alertEmail,
-          subject: 'New user signup',
-          text: `A new user signed up.\nName: ${createdUser.full_name}\nEmail: ${createdUser.email}`,
-          html: notifyHtml,
-        });
-
-        const html = await this.mailService.renderTemplate('account-created.html', {
-          fullName: createdUser.full_name,
-          email: createdUser.email,
-          dashboardUrl: 'https://flagpilot.vercel.app/dashboard'
-        });
-
-        await this.mailService.sendMail({
-          to: createdUser.email,
-          subject: 'Welcome to Feature Flag App - Account Created',
-          text: `Hi ${createdUser.full_name}, your account has been created.`,
-          html,
-        })
-        this.logger.log(
-          `Signup succeeded and alert email sent for ${createdUser.email}`,
-        );
-      }
-    } catch (error) {
-      // log it, but do not block signup
-      const message = error instanceof Error ? error.message : String(error);
-      this.logger.warn(
-        `Signup succeeded but alert email failed for ${createdUser.email}: ${message}`,
-      );
-    }
+    void this.sendSignupEmailsInBackground({
+      email: createdUser.email,
+      full_name: createdUser.full_name,
+    });
 
     const tokens = await this.generateTokens(createdUser.id, createdUser.email);
     await this.storeRefreshTokenHash(createdUser.id, tokens.refreshToken);
@@ -125,6 +76,81 @@ export class AuthService {
       },
       tokens,
     };
+  }
+
+  private async sendSignupEmailsInBackground(user: {
+    email: string;
+    full_name: string;
+  }): Promise<void> {
+    const alertEmail = this.configService.get<string>('ALERT_TO_EMAIL');
+    const dashboardUrl = 'https://flagpilot.vercel.app/dashboard';
+    const tasks: Promise<unknown>[] = [];
+
+    if (alertEmail) {
+      const createdAt = new Intl.DateTimeFormat('en-IN', {
+        day: 'numeric',
+        month: 'short',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true,
+      })
+        .format(new Date())
+        .replace(',', '')
+        .toLowerCase();
+
+      tasks.push(
+        this.mailService
+          .renderTemplate('user-created-notify.html', {
+            fullName: user.full_name,
+            email: user.email,
+            createdAt,
+            dashboardUrl,
+          })
+          .then((notifyHtml) =>
+            this.mailService.sendMail({
+              to: alertEmail,
+              subject: 'New user signup',
+              text: `A new user signed up.\nName: ${user.full_name}\nEmail: ${user.email}`,
+              html: notifyHtml,
+            }),
+          ),
+      );
+    } else {
+      this.logger.warn(
+        'ALERT_TO_EMAIL is not configured. Skipping admin signup alert email.',
+      );
+    }
+
+    tasks.push(
+      this.mailService
+        .renderTemplate('account-created.html', {
+          fullName: user.full_name,
+          email: user.email,
+          dashboardUrl,
+        })
+        .then((html) =>
+          this.mailService.sendMail({
+            to: user.email,
+            subject: 'Welcome to Feature Flag App - Account Created',
+            text: `Hi ${user.full_name}, your account has been created.`,
+            html,
+          }),
+        ),
+    );
+
+    const results = await Promise.allSettled(tasks);
+    const rejectedCount = results.filter(
+      (result) => result.status === 'rejected',
+    ).length;
+
+    if (rejectedCount > 0) {
+      this.logger.warn(
+        `Signup completed for ${user.email}, but ${rejectedCount} email task(s) failed.`,
+      );
+      return;
+    }
+
+    this.logger.log(`Signup completed and email tasks finished for ${user.email}`);
   }
 
   async login(dto: LoginDto): Promise<AuthResponse> {
