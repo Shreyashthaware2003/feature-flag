@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { readFile } from 'fs/promises';
 import * as nodemailer from 'nodemailer';
@@ -16,19 +16,39 @@ type SendMailOptions = {
 };
 
 @Injectable()
-export class MailService {
+export class MailService implements OnModuleInit {
     private readonly transporter: nodemailer.Transporter;
+    private readonly logger = new Logger(MailService.name);
 
     constructor(private readonly configService: ConfigService) {
+        const smtpHost = this.configService.get<string>('SMTP_HOST');
+        const smtpPort = Number(this.configService.get<string>('SMTP_PORT') ?? 587);
+        const smtpUser = this.configService.get<string>('SMTP_USER');
+        const smtpPass = (this.configService.get<string>('SMTP_PASS') ?? '').replace(/\s+/g, '');
+
         this.transporter = nodemailer.createTransport({
-            host: this.configService.get<string>('SMTP_HOST'),
-            port: Number(this.configService.get<string>('SMTP_PORT') ?? 587),
-            secure: false,
+            host: smtpHost,
+            port: smtpPort,
+            secure: smtpPort === 465,
             auth: {
-                user: this.configService.get<string>('SMTP_USER'),
-                pass: this.configService.get<string>('SMTP_PASS'),
+                user: smtpUser,
+                pass: smtpPass,
             },
+            connectionTimeout: 10000,
+            greetingTimeout: 10000,
+            socketTimeout: 20000,
+            tls: { minVersion: 'TLSv1.2' },
         });
+    }
+
+    async onModuleInit(): Promise<void> {
+        try {
+            await this.transporter.verify();
+            this.logger.log('SMTP transporter is ready.');
+        } catch (error) {
+            const message = error instanceof Error ? error.message : String(error);
+            this.logger.warn(`SMTP verify failed: ${message}`);
+        }
     }
 
     async renderTemplate(templateName: string, vars: Record<string, string>) {
