@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <title>New User Registered</title>
+  </head>
+
+  <body
+    style="
+      margin: 0;
+      padding: 40px 20px;
+      background: #ffffff;
+      font-family: 'Poppins', Arial, sans-serif;
+      color: #191919;
+    "
+  >
+    <table width="100%" cellspacing="0" cellpadding="0">
+      <tr>
+        <td align="center">
+          <table width="620" cellspacing="0" cellpadding="0">
+            <!-- Heading -->
+
+            <tr>
+              <td>
+                <h1
+                  style="
+                    margin: 0;
+                    font-size: 38px;
+                    font-weight: 700;
+                    line-height: 46px;
+                    color: #191919;
+                  "
+                >
+                  A new user signed up on Flag Pilot
+                </h1>
+
+                <p
+                  style="
+                    margin: 22px 0 0;
+                    font-size: 16px;
+                    color: #444;
+                    line-height: 28px;
+                  "
+                >
+                  A new user has successfully created a
+                  <strong>Flag Pilot</strong> account.
+                  <br />
+                  Please review the registration details.
+                </p>
+              </td>
+            </tr>
+
+            <!-- Space -->
+
+            <tr>
+              <td height="28"></td>
+            </tr>
+
+            <!-- Details Card -->
+
+            <tr>
+              <td>
+                <table
+                  width="100%"
+                  cellpadding="18"
+                  cellspacing="0"
+                  style="
+                    border: 1px solid #e7e5e4;
+                    border-radius: 12px;
+                    overflow: hidden;
+                    border-collapse: separate;
+                    background: #fafafa;
+                  "
+                >
+                  <tr>
+                    <td style="border-bottom: 1px solid #ececec">
+                      <div
+                        style="font-size: 13px; font-weight: 600; color: #555"
+                      >
+                        Full Name
+                      </div>
+
+                      <div
+                        style="margin-top: 5px; font-size: 15px; color: #111"
+                      >
+                        {{fullName}}
+                      </div>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td style="border-bottom: 1px solid #ececec">
+                      <div
+                        style="font-size: 13px; font-weight: 600; color: #555"
+                      >
+                        Email
+                      </div>
+
+                      <div
+                        style="margin-top: 5px; font-size: 15px; color: #2563eb"
+                      >
+                        {{email}}
+                      </div>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td style="border-bottom: 1px solid #ececec">
+                      <div
+                        style="font-size: 13px; font-weight: 600; color: #555"
+                      >
+                        Registration Time
+                      </div>
+
+                      <div
+                        style="margin-top: 5px; font-size: 15px; color: #111"
+                      >
+                        {{createdAt}}
+                      </div>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      <div
+                        style="font-size: 13px; font-weight: 600; color: #555"
+                      >
+                        Application
+                      </div>
+
+                      <div
+                        style="margin-top: 5px; font-size: 15px; color: #111"
+                      >
+                        Flag Pilot Web
+                      </div>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- Space -->
+
+            <tr>
+              <td height="28"></td>
+            </tr>
+
+            <!-- Info -->
+
+            <tr>
+              <td>
+                <p
+                  style="
+                    margin: 0;
+                    color: #555;
+                    font-size: 15px;
+                    line-height: 28px;
+                  "
+                >
+                  You can review this user's account, manage their workspace, or
+                  monitor activity from your admin dashboard.
+                </p>
+              </td>
+            </tr>
+
+            <!-- Space -->
+
+            <tr>
+              <td height="26"></td>
+            </tr>
+
+            <!-- Button -->
+
+            <tr>
+              <td>
+                <a
+                  href="{{dashboardUrl}}"
+                  style="
+                    display: block;
+                    text-align: center;
+                    text-decoration: none;
+                    background: #2383e2;
+                    color: #ffffff;
+                    padding: 16px;
+                    border-radius: 6px;
+                    font-size: 16px;
+                    font-weight: 600;
+                  "
+                >
+                  Go to Dashboard
+                </a>
+              </td>
+            </tr>
+
+            <!-- Divider -->
+
+            <tr>
+              <td height="40"></td>
+            </tr>
+
+            <tr>
+              <td>
+                <hr style="border: none; border-top: 1px solid #ececec" />
+              </td>
+            </tr>
+
+            <!-- Footer -->
+
+            <tr>
+              <td style="padding-top: 22px">
+                <div style="font-size: 17px; font-weight: 700; color: #191919">
+                  Flag Pilot
+                </div>
+
+                <div
+                  style="
+                    margin-top: 6px;
+                    color: #777;
+                    font-size: 14px;
+                    line-height: 22px;
+                  "
+                >
+                  Manage feature flags with confidence.
+                </div>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
