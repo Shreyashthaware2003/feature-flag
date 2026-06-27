@@ -1,5 +1,6 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { lookup } from 'dns/promises';
 import { readFile } from 'fs/promises';
 import * as nodemailer from 'nodemailer';
 import { join } from 'path';
@@ -17,29 +18,50 @@ type SendMailOptions = {
 
 @Injectable()
 export class MailService implements OnModuleInit {
-    private readonly transporter: nodemailer.Transporter;
+    private transporter: nodemailer.Transporter;
     private readonly logger = new Logger(MailService.name);
+    private readonly smtpHost: string;
+    private readonly smtpPort: number;
+    private readonly smtpUser: string;
+    private readonly smtpPass: string;
 
     constructor(private readonly configService: ConfigService) {
-        const smtpHost = this.configService.get<string>('SMTP_HOST');
-        const smtpPort = Number(this.configService.get<string>('SMTP_PORT') ?? 587);
-        const smtpUser = this.configService.get<string>('SMTP_USER');
-        const smtpPass = (this.configService.get<string>('SMTP_PASS') ?? '').replace(/\s+/g, '');
+        this.smtpHost = this.configService.get<string>('SMTP_HOST') ?? 'smtp.gmail.com';
+        this.smtpPort = Number(this.configService.get<string>('SMTP_PORT') ?? 587);
+        this.smtpUser = this.configService.get<string>('SMTP_USER') ?? '';
+        this.smtpPass = (this.configService.get<string>('SMTP_PASS') ?? '').replace(/\s+/g, '');
+        this.transporter = this.buildTransporter(this.smtpHost);
+    }
 
-        this.transporter = nodemailer.createTransport({
-            host: smtpHost,
-            port: smtpPort,
-            secure: smtpPort === 465,
+    private buildTransporter(targetHost: string): nodemailer.Transporter {
+        return nodemailer.createTransport({
+            host: targetHost,
+            port: this.smtpPort,
+            secure: this.smtpPort === 465,
             family: 4,
-            auth: { user: smtpUser, pass: smtpPass },
+            auth: { user: this.smtpUser, pass: this.smtpPass },
             connectionTimeout: 10000,
             greetingTimeout: 10000,
             socketTimeout: 20000,
-            tls: { minVersion: 'TLSv1.2' },
+            tls: {
+                minVersion: 'TLSv1.2',
+                servername: this.smtpHost,
+            },
         });
     }
 
     async onModuleInit(): Promise<void> {
+        try {
+            const resolved = await lookup(this.smtpHost, { family: 4 });
+            if (resolved.address !== this.smtpHost) {
+                this.logger.log(`Resolved ${this.smtpHost} to IPv4 ${resolved.address}`);
+            }
+            this.transporter = this.buildTransporter(resolved.address);
+        } catch (error) {
+            const message = error instanceof Error ? error.message : String(error);
+            this.logger.warn(`IPv4 resolution failed for ${this.smtpHost}, using host directly: ${message}`);
+        }
+
         try {
             await this.transporter.verify();
             this.logger.log('SMTP transporter is ready.');
